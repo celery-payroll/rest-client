@@ -155,12 +155,14 @@ class Client implements ClientInterface
 
         try {
             $response = $this->makeRequest($resource.'/'.$id, $method, $data);
+
+            if ($response->hasHeader('Location')) {
+                return $this->handleLocation($response->getHeaderLine('Location'));
+            } else {
+                return $this->response_parser->parseResponse($response);
+            }
         } catch (ClientException $e) {
             throw self::createNotFoundException($resource, $id, $e);
-        }
-
-        if ($response->hasHeader('Location')) {
-            return $this->handleLocation($response->getHeaderLine('Location'));
         }
     }
 
